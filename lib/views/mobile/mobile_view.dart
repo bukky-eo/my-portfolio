@@ -142,7 +142,7 @@ class _MobileViewState extends State<MobileView> with SingleTickerProviderStateM
                       ),
                     ),
 
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 48a),
 
 
                     // Footer
