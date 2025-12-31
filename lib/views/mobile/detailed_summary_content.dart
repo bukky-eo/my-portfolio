@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portfolio/utils/snackbar.dart';
 import 'package:portfolio/views/mobile/widgets/base_modal_content.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'dart:io';
@@ -31,13 +32,7 @@ class DetailedSummaryContent extends BaseModalContent {
         web.URL.revokeObjectURL(url);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('CV download started!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
+          showCustomSnackBar(context, message: 'CV downloaded successfully', color: Colors.black);
         }
       } else {
         // MOBILE VERSION (Android/iOS)

@@ -127,13 +127,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         web.URL.revokeObjectURL(url);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('CV download started!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
+        showCustomSnackBar(context, message: 'CV downloade successfully', color: Colors.green);
         }
       } else {
         // MOBILE VERSION (Android/iOS)
