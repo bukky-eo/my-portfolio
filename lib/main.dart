@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         final width = MediaQuery.of(context).size.width;
 
         // Choose layout based on screen width
-        if (width >= 800) {
+        if (width >= 1400) {
           // Wide screen -> desktop view
           return const DesktopView();
         } else {
