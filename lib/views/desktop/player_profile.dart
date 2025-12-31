@@ -73,7 +73,7 @@ class _PlayerProfileState extends BaseLevelPageState<PlayerProfile> {
                 ),
               ],
               image: const DecorationImage(
-                image: AssetImage('assets/images/your_lego_image.png'), // Update path
+                image: AssetImage('assets/images/lego.png'), // Update path
                 fit: BoxFit.cover,
               ),
             ),

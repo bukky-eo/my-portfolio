@@ -16,19 +16,13 @@ class PlayerHeader extends StatelessWidget {
             border: Border.all(color: Colors.cyan, width: 3),
             boxShadow: [
               BoxShadow(
-                color: Colors.cyan.withValues(alpha:0.5),
+                color: Colors.cyan.withValues(alpha: 0.5),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
             ],
-            // Replace with your actual image
             image: const DecorationImage(
-              // Option 1: Use AssetImage for local images
-              image: AssetImage('assets/images/lego.png'),
-
-              // Option 2: Use NetworkImage for web images
-              // image: NetworkImage('https://via.placeholder.com/150'),
-
+              image: AssetImage('assets/images/lego.png'), // Update path
               fit: BoxFit.cover,
             ),
           ),
