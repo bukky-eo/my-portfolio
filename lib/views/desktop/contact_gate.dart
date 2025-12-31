@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/views/desktop/widgets/base_level_page.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:portfolio/shared/models/email.dart'; // Add this
 import '../../utils/custom_scrollbar.dart';
+import '../../utils/snackbar.dart';
 
 class ContactGate extends BaseLevelPage {
   const ContactGate({
@@ -19,6 +21,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
   final email = TextEditingController();
   final subject = TextEditingController();
   final message = TextEditingController();
+  bool _isSending = false;
 
   @override
   String get levelTitle => "FINAL GATE: RECRUIT THIS PLAYER";
@@ -30,7 +33,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
   Color get accentColor => Colors.green;
 
   @override
-  bool get showNextButton => false; // Last level has no next button
+  bool get showNextButton => false;
 
   @override
   double get contentPadding => 60.0;
@@ -44,55 +47,104 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     super.dispose();
   }
 
+  // Future<void> _sendEmail() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     setState(() {
+  //       _isSending = true;
+  //     });
+  //
+  //     try {
+  //       final success = await EmailJSService.sendEmail(
+  //         fromName: name.text,
+  //         fromEmail: email.text,
+  //         subject: subject.text,
+  //         message: message.text,
+  //       );
+  //
+  //       if (mounted) {
+  //         setState(() {
+  //           _isSending = false;
+  //         });
+  //
+  //         if (success) {
+  //           // Clear form
+  //           name.clear();
+  //           email.clear();
+  //           subject.clear();
+  //           message.clear();
+  //
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(
+  //               content: Text("Message sent successfully! I'll get back to you soon."),
+  //               backgroundColor: Colors.green,
+  //               duration: Duration(seconds: 4),
+  //             ),
+  //           );
+  //         } else {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(
+  //               content: Text("Failed to send message. Please try emailing directly."),
+  //               backgroundColor: Colors.red,
+  //               duration: Duration(seconds: 4),
+  //             ),
+  //           );
+  //         }
+  //       }
+  //     } catch (e) {
+  //       if (mounted) {
+  //         setState(() {
+  //           _isSending = false;
+  //         });
+  //
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(
+  //             content: Text("Error sending message. Please email euniceogunshola@gmail.com directly."),
+  //             backgroundColor: Colors.orange,
+  //             duration: Duration(seconds: 4),
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
   Future<void> _sendEmail() async {
-    if (_formKey.currentState!.validate()) {
-      const String emailTo = 'euniceogunshola@gmail.com';
-      final String emailSubject = subject.text.isNotEmpty
-          ? subject.text
-          : 'Contact from ${name.text}';
-      final String emailBody =
-          'Name: ${name.text}\nEmail: ${email.text}\n\nMessage:\n${message.text}';
+    if (!_formKey.currentState!.validate()) return;
 
-      final Uri emailUri = Uri(
-        scheme: 'mailto',
-        path: emailTo,
-        queryParameters: {
-          'subject': emailSubject,
-          'body': emailBody,
-        },
+    setState(() => _isSending = true);
+
+    try {
+      final success = await EmailJSService.sendEmail(
+        fromName: name.text.trim(),
+        fromEmail: email.text.trim(),
+        subject: subject.text.trim(),
+        message: message.text.trim(),
       );
 
-      try {
-        await launchUrl(
-          emailUri,
-          mode: LaunchMode.platformDefault,
+      if (!mounted) return;
+
+      setState(() => _isSending = false);
+
+      if (success) {
+        name.clear();
+        email.clear();
+        subject.clear();
+        message.clear();
+
+        showCustomSnackBar(context, message: "Message sent successfully!");
+      } else {
+        showCustomSnackBar(
+          context,
+          message: "Failed to send message. Please try again.",
+          color: Colors.red,
         );
-
-        if (mounted) {
-          name.clear();
-          email.clear();
-          subject.clear();
-          message.clear();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Opening your email client..."),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error: Could not open email client."),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
       }
+
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isSending = false);
+
+      showCustomSnackBar(context, message: 'An error occurred. Please try again later.', color: Colors.orange);
     }
   }
 
@@ -103,7 +155,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text("Could not open link"),
             backgroundColor: Colors.red,
           ),
@@ -113,7 +165,6 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
   }
 
   Future<void> _downloadCV() async {
-    // For web - triggers download
     const cvUrl = 'assets/cv/Eunice Bukola Ogunshola.pdf';
     try {
       await launchUrl(Uri.parse(cvUrl), mode: LaunchMode.platformDefault);
@@ -174,7 +225,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
             ),
             SizedBox(height: 4),
             Text(
-              "Eunice Bukola Ogunshola",
+              "EUNICE BUKOLA OGUNSHOLA",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -342,15 +393,39 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _sendEmail,
+                onPressed: _isSending ? null : _sendEmail,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: _isSending ? Colors.grey : Colors.green,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Row(
+                child: _isSending
+                    ? const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      "SENDING...",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                )
+                    : const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.send, color: Colors.white),
@@ -401,13 +476,17 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
             value: "euniceogunshola@gmail.com",
             color: Colors.red,
             onTap: () async {
-              final Uri emailUri = Uri(
-                scheme: 'mailto',
-                path: 'euniceogunshola@gmail.com',
+              final Uri emailUri = Uri.parse(
+                'https://mail.google.com/mail/?view=cm&to=euniceogunshola@gmail.com',
               );
-              await launchUrl(emailUri, mode: LaunchMode.platformDefault);
+
+              await launchUrl(
+                emailUri,
+                mode: LaunchMode.platformDefault,
+              );
             },
           ),
+
           const SizedBox(height: 16),
           _buildContactButton(
             icon: Icons.business,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/views/mobile/widgets/round_neu_button.dart';
 import 'package:portfolio/views/mobile/widgets/blankgap.dart';
 import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher_string.dart';
 
 class RightSideButtons extends StatelessWidget {
   final bool isDarkMode;
@@ -16,15 +17,22 @@ class RightSideButtons extends StatelessWidget {
   }
 
   // Function to launch email
-  Future<void> _launchEmail(String email) async {
-    final Uri emailUri = Uri(
+  Future<void> _launchEmail() async {
+    final uri = Uri(
       scheme: 'mailto',
-      path: email,
+      path: 'euniceogunshola@gmail.com',
+      query: Uri.encodeFull('subject=Hi Eunice&body='),
     );
-    if (!await launchUrl(emailUri)) {
-      throw Exception('Could not launch email client');
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.platformDefault,
+      webOnlyWindowName: '_self',
+    )) {
+      throw Exception('Could not launch email');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +100,9 @@ class RightSideButtons extends StatelessWidget {
               ),
               function: () {
                 // Gmail button (top)
-                _launchEmail('euniceogunshola@gmail.com');
+                _launchURL(
+                    'https://mail.google.com/mail/?view=cm&to=euniceogunshola@gmail.com'
+                );
               },
             ),
             const BlankGap(),

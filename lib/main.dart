@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:portfolio/views/mobile/mobile_view.dart';
 import 'views/mobile/gamepad_view.dart';
 import 'views/desktop/desktop_view.dart';
 
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           return const DesktopView();
         } else {
           // Narrow screen -> mobile gamepad view
-          return const PlayStationController();
+          return const MobileView();
         }
       },
     );
