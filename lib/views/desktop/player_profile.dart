@@ -64,19 +64,19 @@ class _PlayerProfileState extends BaseLevelPageState<PlayerProfile> {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Color(0xff667eea), Color(0xff764ba2)],
-              ),
               border: Border.all(color: Colors.cyan, width: 4),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.cyan.withValues(alpha:0.6),
+                  color: Colors.cyan.withValues(alpha: 0.6),
                   blurRadius: 25,
                   spreadRadius: 3,
                 ),
               ],
+              image: const DecorationImage(
+                image: AssetImage('assets/images/your_lego_image.png'), // Update path
+                fit: BoxFit.cover,
+              ),
             ),
-            child: const Icon(Icons.person, color: Colors.white, size: 60),
           ),
           const SizedBox(width: 30),
           Expanded(

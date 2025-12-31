@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/views/mobile/widgets/base_modal_content.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 // For web
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
+import 'dart:js_interop';
+
 
 class DetailedSummaryContent extends BaseModalContent {
   const DetailedSummaryContent({Key? key}) : super(key: key);
@@ -15,11 +17,18 @@ class DetailedSummaryContent extends BaseModalContent {
   Future<void> _downloadCV(BuildContext context) async {
     try {
       if (kIsWeb) {
-        // WEB VERSION - Download using anchor element
-        final url = 'assets/cv/Eunice Bukola Ogunshola.pdf';
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute('download', 'Eunice Bukola Ogunshola.pdf')
-          ..click();
+        // WEB VERSION - Download using blob
+        final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
+        final bytes = byteData.buffer.asUint8List();
+
+        // Create blob and download using package:web with proper JS interop
+        final blob = web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'application/pdf'));
+        final url = web.URL.createObjectURL(blob);
+        final anchor = web.document.createElement('a') as web.HTMLAnchorElement;
+        anchor.href = url;
+        anchor.download = 'Eunice_Bukola_Ogunshola_CV.pdf';
+        anchor.click();
+        web.URL.revokeObjectURL(url);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -32,7 +41,6 @@ class DetailedSummaryContent extends BaseModalContent {
         }
       } else {
         // MOBILE VERSION (Android/iOS)
-        // Load the CV from assets
         final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
         final bytes = byteData.buffer.asUint8List();
 
@@ -69,12 +77,10 @@ class DetailedSummaryContent extends BaseModalContent {
           directory = await getDownloadsDirectory();
         }
 
-        if (directory == null) {
-          directory = await getApplicationDocumentsDirectory();
-        }
+        directory ??= await getApplicationDocumentsDirectory();
 
         // Create file path
-        final filePath = '${directory.path}/Eunice Bukola Ogunshola.pdf';
+        final filePath = '${directory.path}/Eunice_Bukola_Ogunshola_CV.pdf';
         final file = File(filePath);
 
         // Write the file
@@ -96,7 +102,9 @@ class DetailedSummaryContent extends BaseModalContent {
         }
       }
     } catch (e) {
-      print('Error downloading CV: $e');
+      if (kDebugMode) {
+        print('Error downloading CV: $e');
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -108,7 +116,6 @@ class DetailedSummaryContent extends BaseModalContent {
       }
     }
   }
-
   @override
   Widget buildContent(BuildContext context) {
     return Column(
@@ -182,7 +189,7 @@ class DetailedSummaryContent extends BaseModalContent {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [
                     Color(0xFFFFC857),
                     Color(0xFFFFB347),
@@ -191,22 +198,22 @@ class DetailedSummaryContent extends BaseModalContent {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0xFFFFC857).withValues(alpha: 0.3),
+                    color: const Color(0xFFFFC857).withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
                 ],
               ),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.download_rounded,
                     color: Colors.black87,
                     size: 24,
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10),
+                  Text(
                     'Download CV',
                     style: TextStyle(
                       color: Colors.black87,

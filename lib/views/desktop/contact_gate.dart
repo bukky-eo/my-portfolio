@@ -4,7 +4,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio/shared/models/email.dart'; // Add this
 import '../../utils/custom_scrollbar.dart';
 import '../../utils/snackbar.dart';
-
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:web/web.dart' as web;
+import 'dart:js_interop';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 class ContactGate extends BaseLevelPage {
   const ContactGate({
     super.key,
@@ -47,66 +53,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     super.dispose();
   }
 
-  // Future<void> _sendEmail() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     setState(() {
-  //       _isSending = true;
-  //     });
-  //
-  //     try {
-  //       final success = await EmailJSService.sendEmail(
-  //         fromName: name.text,
-  //         fromEmail: email.text,
-  //         subject: subject.text,
-  //         message: message.text,
-  //       );
-  //
-  //       if (mounted) {
-  //         setState(() {
-  //           _isSending = false;
-  //         });
-  //
-  //         if (success) {
-  //           // Clear form
-  //           name.clear();
-  //           email.clear();
-  //           subject.clear();
-  //           message.clear();
-  //
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             const SnackBar(
-  //               content: Text("Message sent successfully! I'll get back to you soon."),
-  //               backgroundColor: Colors.green,
-  //               duration: Duration(seconds: 4),
-  //             ),
-  //           );
-  //         } else {
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             const SnackBar(
-  //               content: Text("Failed to send message. Please try emailing directly."),
-  //               backgroundColor: Colors.red,
-  //               duration: Duration(seconds: 4),
-  //             ),
-  //           );
-  //         }
-  //       }
-  //     } catch (e) {
-  //       if (mounted) {
-  //         setState(() {
-  //           _isSending = false;
-  //         });
-  //
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(
-  //             content: Text("Error sending message. Please email euniceogunshola@gmail.com directly."),
-  //             backgroundColor: Colors.orange,
-  //             duration: Duration(seconds: 4),
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
+
   Future<void> _sendEmail() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -163,23 +110,101 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
       }
     }
   }
-
   Future<void> _downloadCV() async {
-    const cvUrl = 'assets/cv/Eunice Bukola Ogunshola.pdf';
     try {
-      await launchUrl(Uri.parse(cvUrl), mode: LaunchMode.platformDefault);
+      if (kIsWeb) {
+        // WEB VERSION - Load asset as bytes
+        final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
+        final bytes = byteData.buffer.asUint8List();
+
+        // Create blob and download using package:web with proper JS interop
+        final blob = web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'application/pdf'));
+        final url = web.URL.createObjectURL(blob);
+        final anchor = web.document.createElement('a') as web.HTMLAnchorElement;
+        anchor.href = url;
+        anchor.download = 'Eunice_Bukola_Ogunshola_CV.pdf';
+        anchor.click();
+        web.URL.revokeObjectURL(url);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('CV download started!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        // MOBILE VERSION (Android/iOS)
+        final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
+        final bytes = byteData.buffer.asUint8List();
+
+        Directory? directory;
+
+        if (Platform.isAndroid) {
+          if (await Permission.storage.isGranted ||
+              await Permission.manageExternalStorage.isGranted) {
+            directory = Directory('/storage/emulated/0/Download');
+          } else {
+            final storageStatus = await Permission.storage.request();
+            final manageStorageStatus = await Permission.manageExternalStorage.request();
+
+            if (storageStatus.isGranted || manageStorageStatus.isGranted) {
+              directory = Directory('/storage/emulated/0/Download');
+            } else {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Storage permission is required to download CV'),
+                    backgroundColor: Colors.orange,
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+              }
+              return;
+            }
+          }
+        } else if (Platform.isIOS) {
+          directory = await getApplicationDocumentsDirectory();
+        } else {
+          directory = await getDownloadsDirectory();
+        }
+
+        directory ??= await getApplicationDocumentsDirectory();
+
+        final filePath = '${directory.path}/Eunice_Bukola_Ogunshola_CV.pdf';
+        final file = File(filePath);
+        await file.writeAsBytes(bytes);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                Platform.isAndroid
+                    ? 'CV downloaded to Downloads folder!'
+                    : 'CV saved successfully!',
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('Error downloading CV: $e');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("CV download started!"),
-            backgroundColor: Colors.green,
+            content: Text('Error downloading CV. Please try again.'),
+            backgroundColor: Colors.red,
           ),
         );
       }
     }
   }
-
   @override
   Widget buildHeader() {
     return Row(
@@ -189,19 +214,19 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
           height: 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xff667eea), Color(0xff764ba2)],
-            ),
             border: Border.all(color: Colors.cyan, width: 3),
             boxShadow: [
               BoxShadow(
-                color: Colors.cyan.withValues(alpha:0.5),
+                color: Colors.cyan.withValues(alpha: 0.5),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
             ],
+            image: const DecorationImage(
+              image: AssetImage('assets/images/lego.png'), // Update path
+              fit: BoxFit.cover,
+            ),
           ),
-          child: const Icon(Icons.person, color: Colors.white, size: 32),
         ),
         const SizedBox(width: 20),
         const Column(
