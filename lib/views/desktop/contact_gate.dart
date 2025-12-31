@@ -127,7 +127,7 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         web.URL.revokeObjectURL(url);
 
         if (mounted) {
-        showCustomSnackBar(context, message: 'CV downloade successfully', color: Colors.green);
+        showCustomSnackBar(context, message: 'CV downloaded successfully', color: Colors.green);
         }
       } else {
         // MOBILE VERSION (Android/iOS)
