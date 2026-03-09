@@ -4,11 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:portfolio/views/mobile/mobile_view.dart';
 import 'views/desktop/desktop_view.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock orientation on mobile
+  // Lock landscape for all native mobile devices (phones + tablets)
   if (!kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS)) {
@@ -29,19 +28,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
-        final size = MediaQuery
-            .of(context)
-            .size;
-        final shortestSide = size.shortestSide;
+        final size = MediaQuery.of(context).size;
 
-        // Use MobileView if device is small (phone)
-        final bool isMobile = shortestSide < 600;
+        final bool isMobile;
 
-        if (isMobile) {
-          return const MobileView();
+        if (kIsWeb) {
+          // Web: decide by window size
+          isMobile = size.width < 600 || size.height < 400;
         } else {
-          return const DesktopView();
+          // Native: decide by physical device size
+          isMobile = size.shortestSide < 600;
         }
+
+        return isMobile ? const MobileView() : const DesktopView();
       },
     );
   }

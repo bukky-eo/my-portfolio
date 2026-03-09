@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/views/desktop/widgets/base_level_page.dart';
 import '../../utils/custom_scrollbar.dart';
+import '../../utils/responsive.dart';
 
 class SkillTree extends BaseLevelPage {
   const SkillTree({
@@ -25,68 +26,46 @@ class _SkillTreeState extends BaseLevelPageState<SkillTree> {
 
   @override
   Widget buildLevelContent(BuildContext context) {
+    final r = context.responsive;
+
     return CustomScrollbar(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(r.spacing(32)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "UNLOCKED ABILITIES",
               style: TextStyle(
                 color: Colors.amber,
-                fontSize: 20,
+                fontSize: r.scaleFontSize(20),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
-            _buildSkillCategory(
-              "Test Automation",
-              0.78,
-              Colors.cyan,
-              ["Cypress", "Playwright", "Appium", "Selenium"],
-              "Master of automated testing frameworks",
-            ),
-            const SizedBox(height: 20),
-            _buildSkillCategory(
-              "API & Performance Testing",
-              0.85,
-              Colors.green,
-              ["Postman", "JMeter", "Swagger", "RESTful APIs", "Load Testing"],
-              "Expert in backend validation and stress testing",
-            ),
-            const SizedBox(height: 20),
-            _buildSkillCategory(
-              "CI/CD Integration",
-              0.75,
-              Colors.blue,
-              ["GitHub Actions", "Jenkins", "Pipeline Automation"],
-              "Seamless integration with deployment workflows",
-            ),
-            const SizedBox(height: 20),
-            _buildSkillCategory(
-              "Mobile & Web Testing",
-              0.80,
-              Colors.purple,
-              ["Charles Proxy", "Chrome DevTools", "Cross-browser Testing", "Chromatic"],
-              "Comprehensive testing across platforms",
-            ),
-            const SizedBox(height: 20),
-            _buildSkillCategory(
-              "Test Management",
-              0.82,
-              Colors.orange,
-              ["Git/GitHub", "TestRail", "Excel", "Jira"],
-              "Proficient with industry-standard tools",
-            ),
-            const SizedBox(height: 20),
-            _buildSkillCategory(
-              "Manual Testing",
-              0.90,
-              Colors.pink,
-              ["Regression", "Exploratory", "Sanity", "Bug Reporting", "Deterministic"],
-              "Thorough manual testing expertise",
-            ),
+            SizedBox(height: r.spacing(24)),
+            _buildSkillCategory(context, "Test Automation", 0.78, Colors.cyan,
+                ["Cypress", "Playwright", "Appium", "Selenium"],
+                "Master of automated testing frameworks"),
+            SizedBox(height: r.spacing(20)),
+            _buildSkillCategory(context, "API & Performance Testing", 0.85, Colors.green,
+                ["Postman", "JMeter", "Swagger", "RESTful APIs", "Load Testing"],
+                "Expert in backend validation and stress testing"),
+            SizedBox(height: r.spacing(20)),
+            _buildSkillCategory(context, "CI/CD Integration", 0.75, Colors.blue,
+                ["GitHub Actions", "Jenkins", "Pipeline Automation"],
+                "Seamless integration with deployment workflows"),
+            SizedBox(height: r.spacing(20)),
+            _buildSkillCategory(context, "Mobile & Web Testing", 0.80, Colors.purple,
+                ["Charles Proxy", "Chrome DevTools", "Cross-browser Testing", "Chromatic"],
+                "Comprehensive testing across platforms"),
+            SizedBox(height: r.spacing(20)),
+            _buildSkillCategory(context, "Test Management", 0.82, Colors.orange,
+                ["Git/GitHub", "TestRail", "Excel", "Jira"],
+                "Proficient with industry-standard tools"),
+            SizedBox(height: r.spacing(20)),
+            _buildSkillCategory(context, "Manual Testing", 0.90, Colors.pink,
+                ["Regression", "Exploratory", "Sanity", "Bug Reporting"],
+                "Thorough manual testing expertise"),
           ],
         ),
       ),
@@ -94,41 +73,41 @@ class _SkillTreeState extends BaseLevelPageState<SkillTree> {
   }
 
   Widget _buildSkillCategory(
+      BuildContext context,
       String title,
       double mastery,
       Color color,
       List<String> skills,
       String description,
       ) {
+    final r = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(r.spacing(24)),
       decoration: BoxDecoration(
         color: Colors.black26,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha:0.5), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
         boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha:0.2),
-            blurRadius: 15,
-            spreadRadius: 1,
-          ),
+          BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 15, spreadRadius: 1),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(r.spacing(12)),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: color, width: 2),
                 ),
-                child: Icon(Icons.verified, color: color, size: 24),
+                child: Icon(Icons.verified, color: color, size: r.iconSize(24)),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: r.spacing(16)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,16 +116,16 @@ class _SkillTreeState extends BaseLevelPageState<SkillTree> {
                       title,
                       style: TextStyle(
                         color: color,
-                        fontSize: 18,
+                        fontSize: r.scaleFontSize(18),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: r.spacing(4)),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white60,
-                        fontSize: 13,
+                        fontSize: r.scaleFontSize(13),
                       ),
                     ),
                   ],
@@ -154,18 +133,19 @@ class _SkillTreeState extends BaseLevelPageState<SkillTree> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: r.spacing(16)),
+          // Mastery bar
           Row(
             children: [
-              const Text(
+              Text(
                 "MASTERY LEVEL:",
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 12,
+                  fontSize: r.scaleFontSize(12),
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: r.spacing(12)),
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -176,46 +156,46 @@ class _SkillTreeState extends BaseLevelPageState<SkillTree> {
                       value: value,
                       backgroundColor: Colors.white10,
                       color: color,
-                      minHeight: 10,
+                      minHeight: r.spacing(10),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: r.spacing(12)),
               Text(
                 "${(mastery * 100).toInt()}%",
                 style: TextStyle(
                   color: color,
-                  fontSize: 14,
+                  fontSize: r.scaleFontSize(14),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: r.spacing(16)),
+          // Skill chips
           Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: skills
-                .map((skill) => Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 8),
+            spacing: r.spacing(10),
+            runSpacing: r.spacing(10),
+            children: skills.map((skill) => Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: r.spacing(14),
+                vertical: r.spacing(8),
+              ),
               decoration: BoxDecoration(
-                color: color.withValues(alpha:0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: color.withValues(alpha:0.5), width: 1.5),
+                border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
               ),
               child: Text(
                 skill,
                 style: TextStyle(
                   color: color,
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: r.scaleFontSize(13),
                 ),
               ),
-            ))
-                .toList(),
+            )).toList(),
           ),
         ],
       ),

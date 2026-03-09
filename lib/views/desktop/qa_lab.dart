@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/views/desktop/widgets/base_level_page.dart';
 import '../../utils/custom_scrollbar.dart';
+import '../../utils/responsive.dart';
 
 class QALab extends BaseLevelPage {
   const QALab({
@@ -14,6 +15,7 @@ class QALab extends BaseLevelPage {
 }
 
 class _QALabState extends BaseLevelPageState<QALab> {
+
   @override
   String get levelTitle => "LEVEL 4: QA TEST LAB";
 
@@ -25,25 +27,32 @@ class _QALabState extends BaseLevelPageState<QALab> {
 
   @override
   Widget buildLevelContent(BuildContext context) {
+    final responsive = context.responsive;
+
     return CustomScrollbar(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(responsive.spacing(32)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+
+            Text(
               "TESTING METHODOLOGY",
               style: TextStyle(
                 color: Colors.amber,
-                fontSize: 20,
+                fontSize: responsive.scaleFontSize(20),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
+
+            SizedBox(height: responsive.spacing(24)),
+
             Row(
               children: [
+
                 Expanded(
                   child: _buildLabPanel(
+                    context,
                     title: "Test Strategy",
                     icon: Icons.analytics,
                     color: Colors.cyan,
@@ -58,9 +67,12 @@ class _QALabState extends BaseLevelPageState<QALab> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+
+                SizedBox(width: responsive.spacing(20)),
+
                 Expanded(
                   child: _buildLabPanel(
+                    context,
                     title: "Automation Approach",
                     icon: Icons.bolt,
                     color: Colors.purple,
@@ -77,11 +89,15 @@ class _QALabState extends BaseLevelPageState<QALab> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+
+            SizedBox(height: responsive.spacing(20)),
+
             Row(
               children: [
+
                 Expanded(
                   child: _buildLabPanel(
+                    context,
                     title: "Test Execution & Reporting",
                     icon: Icons.bug_report,
                     color: Colors.green,
@@ -96,9 +112,12 @@ class _QALabState extends BaseLevelPageState<QALab> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+
+                SizedBox(width: responsive.spacing(20)),
+
                 Expanded(
                   child: _buildLabPanel(
+                    context,
                     title: "Tools & Frameworks",
                     icon: Icons.build,
                     color: Colors.orange,
@@ -121,109 +140,139 @@ class _QALabState extends BaseLevelPageState<QALab> {
     );
   }
 
-  Widget _buildLabPanel({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required double confidence,
-    required String description,
-    required List<String> bullets,
-  }) {
+  Widget _buildLabPanel(
+      BuildContext context, {
+        required String title,
+        required IconData icon,
+        required Color color,
+        required double confidence,
+        required String description,
+        required List<String> bullets,
+      }) {
+    final responsive = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(responsive.spacing(24)),
       decoration: BoxDecoration(
         color: Colors.black26,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha:0.5), width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha:0.2),
+            color: color.withValues(alpha: 0.2),
             blurRadius: 15,
             spreadRadius: 1,
           ),
         ],
       ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          /// Title
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(responsive.spacing(12)),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: color, width: 2),
                 ),
-                child: Icon(icon, color: color, size: 28),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: responsive.iconSize(28),
+                ),
               ),
-              const SizedBox(width: 12),
+
+              SizedBox(width: responsive.spacing(12)),
+
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
                     color: color,
-                    fontSize: 18,
+                    fontSize: responsive.scaleFontSize(18),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+
+          SizedBox(height: responsive.spacing(16)),
+
           Text(
             description,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white70,
-              fontSize: 13,
+              fontSize: responsive.scaleFontSize(13),
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 16),
-          ...bullets.map((bullet) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                Icon(Icons.check_circle, color: color, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    bullet,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
+
+          SizedBox(height: responsive.spacing(16)),
+
+          ...bullets.map(
+                (bullet) => Padding(
+              padding: EdgeInsets.only(bottom: responsive.spacing(8)),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: color,
+                    size: responsive.iconSize(18),
+                  ),
+                  SizedBox(width: responsive.spacing(8)),
+                  Expanded(
+                    child: Text(
+                      bullet,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: responsive.scaleFontSize(13),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )),
-          const SizedBox(height: 16),
+          ),
+
+          SizedBox(height: responsive.spacing(16)),
+
+          /// Confidence Bar
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+
+                  Text(
                     "CONFIDENCE",
                     style: TextStyle(
                       color: Colors.white60,
-                      fontSize: 11,
+                      fontSize: responsive.scaleFontSize(11),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   Text(
                     "${(confidence * 100).toInt()}%",
                     style: TextStyle(
                       color: color,
-                      fontSize: 11,
+                      fontSize: responsive.scaleFontSize(11),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+
+              SizedBox(height: responsive.spacing(6)),
+
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: TweenAnimationBuilder<double>(
@@ -233,7 +282,7 @@ class _QALabState extends BaseLevelPageState<QALab> {
                     value: value,
                     backgroundColor: Colors.white10,
                     color: color,
-                    minHeight: 8,
+                    minHeight: responsive.spacing(8),
                   ),
                 ),
               ),

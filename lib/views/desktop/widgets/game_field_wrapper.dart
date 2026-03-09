@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../utils/responsive.dart';
 
-/// Reusable game field container that wraps level content
-/// with consistent styling and animations
 class GameFieldWrapper extends StatelessWidget {
   final String levelTitle;
   final IconData levelIcon;
@@ -29,7 +28,7 @@ class GameFieldWrapper extends StatelessWidget {
           border: Border.all(color: borderColor, width: 3),
           boxShadow: [
             BoxShadow(
-              color: borderColor.withValues(alpha:0.3),
+              color: borderColor.withValues(alpha: 0.3),
               blurRadius: 30,
               spreadRadius: 5,
             ),
@@ -37,7 +36,7 @@ class GameFieldWrapper extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             Expanded(child: child),
           ],
         ),
@@ -45,11 +44,13 @@ class GameFieldWrapper extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final r = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: EdgeInsets.symmetric(vertical: r.spacing(16)),
       decoration: BoxDecoration(
-        color: borderColor.withValues(alpha:0.1),
+        color: borderColor.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(17),
           topRight: Radius.circular(17),
@@ -59,19 +60,22 @@ class GameFieldWrapper extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(levelIcon, color: Colors.amber, size: 28),
-          const SizedBox(width: 12),
-          Text(
-            levelTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
+          Icon(levelIcon, color: Colors.amber, size: r.iconSize(28)),
+          SizedBox(width: r.spacing(12)),
+          Flexible(
+            child: Text(
+              levelTitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: r.scaleFontSize(22),
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
-          Icon(levelIcon, color: Colors.amber, size: 28),
+          SizedBox(width: r.spacing(12)),
+          Icon(levelIcon, color: Colors.amber, size: r.iconSize(28)),
         ],
       ),
     );

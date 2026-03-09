@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/views/desktop/widgets/base_level_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:portfolio/shared/models/email.dart'; // Add this
+import 'package:portfolio/shared/models/email.dart';
 import '../../utils/custom_scrollbar.dart';
 import '../../utils/snackbar.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,6 +11,8 @@ import 'dart:js_interop';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../utils/responsive.dart';
+
 class ContactGate extends BaseLevelPage {
   const ContactGate({
     super.key,
@@ -42,9 +44,6 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
   bool get showNextButton => false;
 
   @override
-  double get contentPadding => 60.0;
-
-  @override
   void dispose() {
     name.dispose();
     email.dispose();
@@ -53,12 +52,9 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     super.dispose();
   }
 
-
   Future<void> _sendEmail() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isSending = true);
-
     try {
       final success = await EmailJSService.sendEmail(
         fromName: name.text.trim(),
@@ -66,32 +62,22 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         subject: subject.text.trim(),
         message: message.text.trim(),
       );
-
       if (!mounted) return;
-
       setState(() => _isSending = false);
-
       if (success) {
-        name.clear();
-        email.clear();
-        subject.clear();
-        message.clear();
-
+        name.clear(); email.clear(); subject.clear(); message.clear();
         showCustomSnackBar(context, message: "Message sent successfully!");
       } else {
-        showCustomSnackBar(
-          context,
-          message: "Failed to send message. Please try again.",
-          color: Colors.red,
-        );
+        showCustomSnackBar(context,
+            message: "Failed to send message. Please try again.",
+            color: Colors.red);
       }
-
     } catch (e) {
       if (!mounted) return;
-
       setState(() => _isSending = false);
-
-      showCustomSnackBar(context, message: 'An error occurred. Please try again later.', color: Colors.orange);
+      showCustomSnackBar(context,
+          message: 'An error occurred. Please try again later.',
+          color: Colors.orange);
     }
   }
 
@@ -102,22 +88,17 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Could not open link"),
-            backgroundColor: Colors.red,
-          ),
+          const SnackBar(content: Text("Could not open link"), backgroundColor: Colors.red),
         );
       }
     }
   }
+
   Future<void> _downloadCV() async {
     try {
       if (kIsWeb) {
-        // WEB VERSION - Load asset as bytes
         final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
         final bytes = byteData.buffer.asUint8List();
-
-        // Create blob and download using package:web with proper JS interop
         final blob = web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'application/pdf'));
         final url = web.URL.createObjectURL(blob);
         final anchor = web.document.createElement('a') as web.HTMLAnchorElement;
@@ -125,37 +106,21 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         anchor.download = 'Eunice_Bukola_Ogunshola_CV.pdf';
         anchor.click();
         web.URL.revokeObjectURL(url);
-
-        if (mounted) {
-        showCustomSnackBar(context, message: 'CV downloaded successfully', color: Colors.green);
-        }
+        if (mounted) showCustomSnackBar(context, message: 'CV downloaded successfully', color: Colors.green);
       } else {
-        // MOBILE VERSION (Android/iOS)
         final byteData = await rootBundle.load('assets/cv/Eunice Bukola Ogunshola.pdf');
         final bytes = byteData.buffer.asUint8List();
-
         Directory? directory;
-
         if (Platform.isAndroid) {
-          if (await Permission.storage.isGranted ||
-              await Permission.manageExternalStorage.isGranted) {
+          if (await Permission.storage.isGranted || await Permission.manageExternalStorage.isGranted) {
             directory = Directory('/storage/emulated/0/Download');
           } else {
             final storageStatus = await Permission.storage.request();
             final manageStorageStatus = await Permission.manageExternalStorage.request();
-
             if (storageStatus.isGranted || manageStorageStatus.isGranted) {
               directory = Directory('/storage/emulated/0/Download');
             } else {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Storage permission is required to download CV'),
-                    backgroundColor: Colors.orange,
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-              }
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Storage permission is required to download CV'), backgroundColor: Colors.orange, duration: Duration(seconds: 3)));
               return;
             }
           }
@@ -164,114 +129,94 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         } else {
           directory = await getDownloadsDirectory();
         }
-
         directory ??= await getApplicationDocumentsDirectory();
-
         final filePath = '${directory.path}/Eunice_Bukola_Ogunshola_CV.pdf';
-        final file = File(filePath);
-        await file.writeAsBytes(bytes);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                Platform.isAndroid
-                    ? 'CV downloaded to Downloads folder!'
-                    : 'CV saved successfully!',
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
+        await File(filePath).writeAsBytes(bytes);
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Platform.isAndroid ? 'CV downloaded to Downloads folder!' : 'CV saved successfully!'), backgroundColor: Colors.green, duration: const Duration(seconds: 3)));
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error downloading CV: $e');
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error downloading CV. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (kDebugMode) print('Error downloading CV: $e');
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error downloading CV. Please try again.'), backgroundColor: Colors.red));
     }
   }
+
+  // ── Responsive header override ─────────────────────────────────────────────
+
   @override
-  Widget buildHeader() {
+  Widget buildHeader(BuildContext context) {
+    final r = context.responsive;
+
     return Row(
       children: [
         Container(
-          width: 60,
-          height: 60,
+          width: r.iconSize(60),
+          height: r.iconSize(60),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: Colors.cyan, width: 3),
             boxShadow: [
-              BoxShadow(
-                color: Colors.cyan.withValues(alpha: 0.5),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
+              BoxShadow(color: Colors.cyan.withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 2),
             ],
             image: const DecorationImage(
-              image: AssetImage('assets/images/lego.png'), // Update path
+              image: AssetImage('assets/images/lego.png'),
               fit: BoxFit.cover,
             ),
           ),
         ),
-        const SizedBox(width: 20),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.gamepad, color: Colors.cyan, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  "PLAYER:",
-                  style: TextStyle(
-                    color: Colors.cyan,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                    fontFamily: 'Poppins',
+        SizedBox(width: r.spacing(20)),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.gamepad, color: Colors.cyan, size: r.iconSize(20)),
+                  SizedBox(width: r.spacing(8)),
+                  Text(
+                    "PLAYER:",
+                    style: TextStyle(
+                      color: Colors.cyan,
+                      fontSize: r.scaleFontSize(14),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 4),
-            Text(
-              "EUNICE BUKOLA OGUNSHOLA",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
+                ],
               ),
-            ),
-          ],
+              SizedBox(height: r.spacing(4)),
+              Text(
+                "EUNICE BUKOLA OGUNSHOLA",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: r.scaleFontSize(22),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
         ),
-        const Spacer(),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: r.spacing(16), vertical: r.spacing(8)),
           decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha:0.2),
+            color: Colors.green.withValues(alpha: 0.2),
             border: Border.all(color: Colors.green, width: 2),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Row(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.circle, color: Colors.green, size: 12),
-              SizedBox(width: 8),
+              Icon(Icons.circle, color: Colors.green, size: r.iconSize(12)),
+              SizedBox(width: r.spacing(8)),
               Text(
                 "AVAILABLE FOR HIRE",
                 style: TextStyle(
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
+                  fontSize: r.scaleFontSize(13),
                   fontFamily: 'Poppins',
                 ),
               ),
@@ -282,36 +227,34 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     );
   }
 
+  // ── Level content ──────────────────────────────────────────────────────────
+
   @override
   Widget buildLevelContent(BuildContext context) {
+    final r = context.responsive;
+
     return CustomScrollbar(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(40),
+        padding: EdgeInsets.all(r.spacing(40)),
         child: Column(
           children: [
-            const Text(
+            Text(
               "You've reached the final gate. Ready to work together?",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white70,
-                fontSize: 18,
+                fontSize: r.scaleFontSize(18),
                 height: 1.6,
                 fontFamily: 'Poppins',
               ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: r.spacing(40)),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 3,
-                  child: _buildContactForm(),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  flex: 2,
-                  child: _buildQuickContact(),
-                ),
+                Expanded(flex: 3, child: _buildContactForm(context)),
+                SizedBox(width: r.spacing(24)),
+                Expanded(flex: 2, child: _buildQuickContact(context)),
               ],
             ),
           ],
@@ -320,68 +263,66 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     );
   }
 
-  Widget _buildContactForm() {
+  Widget _buildContactForm(BuildContext context) {
+    final r = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(r.spacing(28)),
       decoration: BoxDecoration(
         color: Colors.black26,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.withValues(alpha:0.5), width: 2),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.5), width: 2),
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "SEND A MESSAGE",
               style: TextStyle(
                 color: Colors.green,
-                fontSize: 18,
+                fontSize: r.scaleFontSize(18),
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
               ),
             ),
-            const SizedBox(height: 24),
-            _buildTextField(
-              controller: name,
-              label: "Your Name",
-              icon: Icons.person,
-              validator: (v) => v == null || v.isEmpty ? "Name required" : null,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: email,
-              label: "Your Email",
-              icon: Icons.email,
-              validator: (v) {
-                if (v == null || v.isEmpty) return "Email required";
-                if (!v.contains("@")) return "Invalid email";
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: subject,
-              label: "Subject",
-              icon: Icons.subject,
-              validator: (v) =>
-              v == null || v.isEmpty ? "Subject required" : null,
-            ),
-            const SizedBox(height: 16),
+            SizedBox(height: r.spacing(24)),
+            _buildTextField(context,
+                controller: name,
+                label: "Your Name",
+                icon: Icons.person,
+                validator: (v) => v == null || v.isEmpty ? "Name required" : null),
+            SizedBox(height: r.spacing(16)),
+            _buildTextField(context,
+                controller: email,
+                label: "Your Email",
+                icon: Icons.email,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return "Email required";
+                  if (!v.contains("@")) return "Invalid email";
+                  return null;
+                }),
+            SizedBox(height: r.spacing(16)),
+            _buildTextField(context,
+                controller: subject,
+                label: "Subject",
+                icon: Icons.subject,
+                validator: (v) => v == null || v.isEmpty ? "Subject required" : null),
+            SizedBox(height: r.spacing(16)),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Your Message",
                   style: TextStyle(
                     color: Colors.white60,
-                    fontSize: 14,
+                    fontSize: r.scaleFontSize(14),
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: r.spacing(8)),
                 TextFormField(
                   controller: message,
                   validator: (v) => v!.isEmpty ? "Enter your message" : null,
@@ -392,71 +333,47 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
                     hintStyle: const TextStyle(color: Colors.white30, fontFamily: 'Poppins'),
                     filled: true,
                     fillColor: Colors.black26,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white24),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.cyan, width: 2),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white24)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.cyan, width: 2)),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: r.spacing(24)),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isSending ? null : _sendEmail,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isSending ? Colors.grey : Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: r.spacing(16)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: _isSending
-                    ? const Row(
+                    ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
+                      width: r.iconSize(20),
+                      height: r.iconSize(20),
+                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: r.spacing(12)),
                     Text(
                       "SENDING...",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                      ),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: r.scaleFontSize(16), fontFamily: 'Poppins'),
                     ),
                   ],
                 )
-                    : const Row(
+                    : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.send, color: Colors.white),
-                    SizedBox(width: 8),
+                    Icon(Icons.send, color: Colors.white, size: r.iconSize(20)),
+                    SizedBox(width: r.spacing(8)),
                     Text(
                       "SEND MESSAGE",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                      ),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: r.scaleFontSize(16), fontFamily: 'Poppins'),
                     ),
                   ],
                 ),
@@ -468,86 +385,79 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     );
   }
 
-  Widget _buildQuickContact() {
+  Widget _buildQuickContact(BuildContext context) {
+    final r = context.responsive;
+
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(r.spacing(28)),
       decoration: BoxDecoration(
         color: Colors.black26,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.cyan.withValues(alpha:0.5), width: 2),
+        border: Border.all(color: Colors.cyan.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "QUICK CONNECT",
             style: TextStyle(
               color: Colors.cyan,
-              fontSize: 18,
+              fontSize: r.scaleFontSize(18),
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 24),
-          _buildContactButton(
-            icon: Icons.email,
-            label: "Email",
-            value: "euniceogunshola@gmail.com",
-            color: Colors.red,
-            onTap: () async {
-              final Uri emailUri = Uri.parse(
-                'https://mail.google.com/mail/?view=cm&to=euniceogunshola@gmail.com',
-              );
-
-              await launchUrl(
-                emailUri,
-                mode: LaunchMode.platformDefault,
-              );
-            },
-          ),
-
-          const SizedBox(height: 16),
-          _buildContactButton(
-            icon: Icons.business,
-            label: "LinkedIn",
-            value: "Connect on LinkedIn",
-            color: Colors.blue,
-            onTap: () => _launchURL('https://www.linkedin.com/in/euniceogunshola/'),
-          ),
-          const SizedBox(height: 16),
-          _buildContactButton(
-            icon: Icons.code,
-            label: "GitHub",
-            value: "View Projects",
-            color: Colors.purple,
-            onTap: () => _launchURL('https://github.com/bukky-eo'),
-          ),
-          const SizedBox(height: 16),
-          _buildContactButton(
-            icon: Icons.download,
-            label: "Download CV",
-            value: "Get Resume",
-            color: Colors.amber,
-            onTap: _downloadCV,
-          ),
-          const SizedBox(height: 32),
+          SizedBox(height: r.spacing(24)),
+          _buildContactButton(context,
+              icon: Icons.email,
+              label: "Email",
+              value: "euniceogunshola@gmail.com",
+              color: Colors.red,
+              onTap: () async {
+                await launchUrl(
+                  Uri.parse('https://mail.google.com/mail/?view=cm&to=euniceogunshola@gmail.com'),
+                  mode: LaunchMode.platformDefault,
+                );
+              }),
+          SizedBox(height: r.spacing(16)),
+          _buildContactButton(context,
+              icon: Icons.business,
+              label: "LinkedIn",
+              value: "Connect on LinkedIn",
+              color: Colors.blue,
+              onTap: () => _launchURL('https://www.linkedin.com/in/euniceogunshola/')),
+          SizedBox(height: r.spacing(16)),
+          _buildContactButton(context,
+              icon: Icons.code,
+              label: "GitHub",
+              value: "View Projects",
+              color: Colors.purple,
+              onTap: () => _launchURL('https://github.com/bukky-eo')),
+          SizedBox(height: r.spacing(16)),
+          _buildContactButton(context,
+              icon: Icons.download,
+              label: "Download CV",
+              value: "Get Resume",
+              color: Colors.amber,
+              onTap: _downloadCV),
+          SizedBox(height: r.spacing(32)),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(r.spacing(16)),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha:0.1),
+              color: Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green.withValues(alpha:0.5)),
+              border: Border.all(color: Colors.green.withValues(alpha: 0.5)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 20),
-                SizedBox(width: 12),
+                Icon(Icons.check_circle, color: Colors.green, size: r.iconSize(20)),
+                SizedBox(width: r.spacing(12)),
                 Expanded(
                   child: Text(
                     "Available for QA roles & freelance projects",
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 13,
+                      fontSize: r.scaleFontSize(13),
                       height: 1.5,
                       fontFamily: 'Poppins',
                     ),
@@ -561,13 +471,14 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required String? Function(String?) validator,
-    int maxLines = 1,
-  }) {
+  Widget _buildTextField(
+      BuildContext context, {
+        required TextEditingController controller,
+        required String label,
+        required IconData icon,
+        required String? Function(String?) validator,
+        int maxLines = 1,
+      }) {
     return TextFormField(
       controller: controller,
       validator: validator,
@@ -579,55 +490,46 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
         prefixIcon: Icon(icon, color: Colors.cyan),
         filled: true,
         fillColor: Colors.black26,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.white24),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.cyan, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white24)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.cyan, width: 2)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 2)),
       ),
     );
   }
 
-  Widget _buildContactButton({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildContactButton(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required String value,
+        required Color color,
+        required VoidCallback onTap,
+      }) {
+    final r = context.responsive;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(r.spacing(16)),
           decoration: BoxDecoration(
-            color: color.withValues(alpha:0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha:0.5)),
+            border: Border.all(color: color.withValues(alpha: 0.5)),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(r.spacing(10)),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: r.iconSize(20)),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: r.spacing(12)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -637,23 +539,23 @@ class _ContactGateState extends BaseLevelPageState<ContactGate> {
                       style: TextStyle(
                         color: color,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: r.scaleFontSize(14),
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: r.spacing(2)),
                     Text(
                       value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white60,
-                        fontSize: 12,
+                        fontSize: r.scaleFontSize(12),
                         fontFamily: 'Poppins',
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: color, size: 16),
+              Icon(Icons.arrow_forward_ios, color: color, size: r.iconSize(16)),
             ],
           ),
         ),
