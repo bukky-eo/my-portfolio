@@ -9,6 +9,7 @@ class ToolsFrameworkContent extends BaseModalContent {
     // List of your actual tools and frameworks from CV
     final List<Map<String, String>> tools = [
       {'name': 'Appium', 'logo': 'assets/icons/appium.png'},
+      {'name': 'Charles Proxy', 'logo': 'assets/icons/CP.jpeg'},
       {'name': 'Chromatic', 'logo': 'assets/icons/Chromatic.png'},
       {'name': 'Cypress', 'logo': 'assets/icons/Cypress.png'},
       {'name': 'Excel', 'logo': 'assets/icons/excel.png'},
@@ -20,6 +21,7 @@ class ToolsFrameworkContent extends BaseModalContent {
       {'name': 'JMeter', 'logo': 'assets/icons/jmeter.png'},
       {'name': 'Playwright', 'logo': 'assets/icons/Playwright.png'},
       {'name': 'Postman', 'logo': 'assets/icons/Postman.png'},
+      {'name': 'Swagger', 'logo': 'assets/icons/swagger.png'},
       {'name': 'TestRail', 'logo': 'assets/icons/TestRail.png'},
     ];
 

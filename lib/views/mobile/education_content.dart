@@ -16,39 +16,95 @@ class EducationContent extends BaseModalContent {
       },
     ];
 
-    return Column(
-      children: education.map((edu) => _buildEducationCard(edu)).toList(),
+    return SingleChildScrollView(
+      child: Column(
+        children: education.map((edu) => _buildEducationCard(context, edu)).toList(),
+      ),
     );
   }
 
-  Widget _buildEducationCard(Map<String, String> edu) {
-    return buildContentContainer(
-      title: edu['institution']!,
-      children: [
-        Text(
-          edu['degree']!,
-          style: TextStyle(
-            color: Colors.green[300],
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+  Widget _buildEducationCard(BuildContext context, Map<String, String> edu) {
+    // RESPONSIVE SIZING
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isSmallMobile = screenWidth < 400;
+
+    final institutionFontSize = isSmallMobile ? 16.0 : isMobile ? 18.0 : 20.0;
+    final degreeFontSize = isSmallMobile ? 14.0 : isMobile ? 15.0 : 16.0;
+    final periodFontSize = isSmallMobile ? 12.0 : isMobile ? 13.0 : 14.0;
+    final descriptionFontSize = isSmallMobile ? 12.0 : isMobile ? 13.0 : 14.0;
+    final iconSize = isSmallMobile ? 16.0 : isMobile ? 18.0 : 20.0;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: isMobile ? 12 : 16),
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: isMobile ? 1 : 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Institution Name
+          Text(
+            edu['institution']!,
+            style: TextStyle(
+              color: const Color(0xFFFFC857),
+              fontSize: institutionFontSize,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Lastica',
+            ),
           ),
-        ),
-        const SizedBox(height: 5),
-        buildInfoRow(
-          Icons.calendar_today,
-          edu['period']!,
-          iconColor: Colors.grey[400],
-        ),
-        const SizedBox(height: 10),
-        Text(
-          edu['description']!,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            height: 1.5,
+          SizedBox(height: isMobile ? 8 : 10),
+
+          // Degree
+          Text(
+            edu['degree']!,
+            style: TextStyle(
+              color: Colors.green[300],
+              fontSize: degreeFontSize,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: isMobile ? 6 : 8),
+
+          // Period with Icon
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                color: Colors.grey[400],
+                size: iconSize,
+              ),
+              SizedBox(width: isMobile ? 6 : 8),
+              Expanded(
+                child: Text(
+                  edu['period']!,
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: periodFontSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: isMobile ? 8 : 10),
+
+          // Description
+          Text(
+            edu['description']!,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: descriptionFontSize,
+              height: isMobile ? 1.4 : 1.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

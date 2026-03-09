@@ -111,119 +111,194 @@ class DetailedSummaryContent extends BaseModalContent {
       }
     }
   }
+
   @override
   Widget buildContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Profile Summary
-        buildContentContainer(
-          title: 'Profile Summary',
-          children: [
-            const Text(
-              'Formerly a Mobile App Developer, now a detail-oriented Quality Assurance Engineer with experience in automation and manual testing for web and mobile applications. Decently proficient in Cypress, Appium for automation, GitHub Actions for CI/CD, as well as Postman and JMeter for API and performance testing. I\'m passionate about ensuring software reliability and quality, enhancing user experience, and collaborating with cross-functional teams to deliver high-quality products.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                height: 1.5,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ],
-        ),
+    // RESPONSIVE SIZING
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isSmallMobile = screenWidth < 400;
 
-        // Testing Types
-        buildContentContainer(
-          title: 'Testing Expertise',
-          children: [
-            buildSkillItem('Automated Testing'),
-            buildSkillItem('Manual Testing'),
-            buildSkillItem('Regression Testing'),
-            buildSkillItem('Integration Testing'),
-            buildSkillItem('Sanity Testing'),
-            buildSkillItem('Exploratory Testing'),
-            buildSkillItem('Web Application Testing'),
-            buildSkillItem('Mobile App Testing'),
-            buildSkillItem('API Testing'),
-            buildSkillItem('Performance Testing (Load & Stress)'),
-            buildSkillItem('CRUD Testing'),
-            buildSkillItem('Business Logic Validation'),
-          ],
-        ),
+    final titleFontSize = isSmallMobile ? 12.0 : isMobile ? 13.0 : 14.0;
+    final bodyFontSize = isSmallMobile ? 11.0 : isMobile ? 12.0 : 14.0;
+    final buttonFontSize = isSmallMobile ? 13.0 : isMobile ? 14.0 : 16.0;
+    final iconSize = isSmallMobile ? 20.0 : isMobile ? 22.0 : 24.0;
 
-        // Key Technical Skills
-        buildContentContainer(
-          title: 'Technical Skills',
-          children: [
-            buildSkillItem('Test Planning & Case Development'),
-            buildSkillItem('Defect Tracking & Documentation'),
-            buildSkillItem('CI/CD Pipeline Integration'),
-            buildSkillItem('Browser DevTools Debugging'),
-            buildSkillItem('Database Testing'),
-            buildSkillItem('RESTful API Integration'),
-            buildSkillItem('Positive & Negative Testing'),
-            buildSkillItem('Smoke Testing'),
-          ],
-        ),
-
-        // Contact Information
-        buildContentContainer(
-          title: 'Contact Information',
-          children: [
-            buildInfoRow(
-              Icons.email,
-              'euniceogunshola@gmail.com',
-            ),
-          ],
-        ),
-
-        // Download CV Button
-        Center(
-          child: GestureDetector(
-            onTap: () => _downloadCV(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFFFC857),
-                    Color(0xFFFFB347),
-                  ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Profile Summary
+          buildContentContainer(
+            title: 'Profile Summary',
+            children: [
+              Text(
+                'Formerly a Mobile App Developer, now a detail-oriented Quality Assurance Engineer with experience in automation and manual testing for web and mobile applications. Decently proficient in Cypress, Appium for automation, GitHub Actions for CI/CD, as well as Postman and JMeter for API and performance testing. I\'m passionate about ensuring software reliability and quality, enhancing user experience, and collaborating with cross-functional teams to deliver high-quality products.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: bodyFontSize,
+                  height: isMobile ? 1.4 : 1.5,
+                  fontFamily: 'Poppins',
                 ),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFFC857).withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
               ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+            ],
+          ),
+
+          // Testing Types
+          buildContentContainer(
+            title: 'Testing Expertise',
+            children: [
+              _buildSkillGrid(
+                context,
+                [
+                  'Automated Testing',
+                  'Manual Testing',
+                  'Regression Testing',
+                  'Integration Testing',
+                  'Sanity Testing',
+                  'Exploratory Testing',
+                  'Web Application Testing',
+                  'Mobile App Testing',
+                  'API Testing',
+                  'Performance Testing (Load & Stress)',
+                  'CRUD Testing',
+                  'Business Logic Validation',
+                ],
+                fontSize: titleFontSize,
+              ),
+            ],
+          ),
+
+          // Key Technical Skills
+          buildContentContainer(
+            title: 'Technical Skills',
+            children: [
+              _buildSkillGrid(
+                context,
+                [
+                  'Test Planning & Case Development',
+                  'Defect Tracking & Documentation',
+                  'CI/CD Pipeline Integration',
+                  'Browser DevTools Debugging',
+                  'Database Testing',
+                  'RESTful API Integration',
+                  'Positive & Negative Testing',
+                  'Smoke Testing',
+                ],
+                fontSize: titleFontSize,
+              ),
+            ],
+          ),
+
+          // Contact Information
+          buildContentContainer(
+            title: 'Contact Information',
+            children: [
+              Row(
                 children: [
-                  Icon(
-                    Icons.download_rounded,
-                    color: Colors.black87,
-                    size: 24,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Download CV',
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                  Icon(Icons.email, color: Colors.white, size: iconSize),
+                  SizedBox(width: isMobile ? 8 : 10),
+                  Expanded(
+                    child: Text(
+                      'euniceogunshola@gmail.com',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: bodyFontSize,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
+            ],
+          ),
+
+          // Download CV Button
+          Center(
+            child: GestureDetector(
+              onTap: () => _downloadCV(context),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallMobile ? 20 : isMobile ? 25 : 30,
+                  vertical: isSmallMobile ? 12 : isMobile ? 13 : 15,
+                ),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFFFC857),
+                      Color(0xFFFFB347),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFFFC857).withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.download_rounded,
+                      color: Colors.black87,
+                      size: iconSize,
+                    ),
+                    SizedBox(width: isMobile ? 8 : 10),
+                    Text(
+                      'Download CV',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: buttonFontSize,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-      ],
+          SizedBox(height: isMobile ? 15 : 20),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to build responsive skill grid
+  Widget _buildSkillGrid(BuildContext context, List<String> skills, {required double fontSize}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    return Wrap(
+      spacing: isMobile ? 6 : 8,
+      runSpacing: isMobile ? 6 : 8,
+      children: skills.map((skill) {
+        return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 8 : 10,
+            vertical: isMobile ? 4 : 6,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha:0.1),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            skill,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSize,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
