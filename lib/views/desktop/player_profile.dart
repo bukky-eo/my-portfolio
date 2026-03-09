@@ -173,25 +173,25 @@ class _PlayerProfileState extends BaseLevelPageState<PlayerProfile> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildStatBar("Test Automation", 0.78, Colors.purple)),
+            Expanded(child: _buildStatBar("Test Strategy & Planning", 0.78, Colors.purple)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatBar("Bug Detection", 0.90, Colors.red)),
+            Expanded(child: _buildStatBar("Quality Architecture", 0.90, Colors.red)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildStatBar("API Testing", 0.85, Colors.green)),
+            Expanded(child: _buildStatBar("Risk Assessment & Mitigation", 0.85, Colors.green)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatBar("Collaboration", 0.95, Colors.blue)),
+            Expanded(child: _buildStatBar("Collaboration/Communication", 0.95, Colors.blue)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildStatBar("Problem Solving", 0.88, Colors.orange)),
+            Expanded(child: _buildStatBar("Stakeholder Management", 0.88, Colors.orange)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatBar("Attention to Detail", 0.92, Colors.pink)),
+            Expanded(child: _buildStatBar("Automation Framework Design", 0.92, Colors.pink)),
           ],
         ),
       ],
