@@ -35,10 +35,10 @@ class MyApp extends StatelessWidget {
 
         if (kIsWeb) {
           // Web: decide by window size
-          isMobile = size.width < 1000 || size.height < 600;
+          isMobile = size.width < 800 || size.height < 600;
         } else {
           // Native: decide by physical device size
-          isMobile = size.shortestSide < 1000;
+          isMobile = size.shortestSide < 800;
         }
 
         return isMobile ? const MobileView() : const DesktopView();
